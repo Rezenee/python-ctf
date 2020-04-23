@@ -47,9 +47,10 @@ class player(pg.sprite.Sprite):
             screen.blit(rainbow, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
                         (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
         self.x_next = self.x + self.x_vel * dt
+        self.y_next = self.y + self.y_vel * dt
         self.terrain_collision()
         self.x += self.x_vel * dt
-
+        self.y += self.y_vel * dt
         # FRICTION
         if self.x_vel > 0:
             self.x_vel = self.x_vel - .05
@@ -57,14 +58,18 @@ class player(pg.sprite.Sprite):
             self.x_vel = self.x_vel + .05
         if .05 > self.x_vel > -.05:
             self.x_vel = 0
+
+        # Gravity
+        if self.y_vel < .1:
+            self.y_vel += .1
+
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) - self.y
 
     def terrain_collision(self):
-     # X COLLISION
+    # X COLLISION
         for wall in walls:
-            print(self.y, 'self.y')
-            print(walls[wall].y + walls[wall].h + self.height)
+
             # Moving into the right side of block
             if walls[wall].x + walls[wall].l > self.x_next > walls[wall].x and walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
                 self.x_vel = 0
@@ -74,6 +79,14 @@ class player(pg.sprite.Sprite):
                 self.x_vel = 0
                 self.x = walls[wall].x - self.length
 
+    # Y COLLISION
+
+        for wall in walls:
+            print(walls[wall].y, 'walls[wall].y')
+            print(self.y_next)
+            if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+                self.y_vel = 0
+                self.y = walls[wall].y
 player1 = player()
 
 
@@ -102,9 +115,9 @@ def initial_draw():
 initial_draw()
 
 walls = {
-        # 'ground': block(0, 0, 100, 20, grey),
-        'wall': block(-25, -1, 25, 25, grey),
-        'wall2': block(50, -74,25, 25, grey)
+        'ground': block(0, 0, 100, 20, grey),
+        # 'wall': block(-25, -1, 25, 25, grey),
+        'wall2': block(50, -45,25, 25, grey)
          }
 
 
