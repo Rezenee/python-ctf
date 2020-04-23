@@ -35,12 +35,16 @@ class player(pg.sprite.Sprite):
         self.height = 50
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) + self.y
+        self.grounded = 0
     def move(self, direction):
         if 1 > self.x_vel > -1:
             if direction == "left":
                 self.x_vel -= .2
             if direction == "right":
                 self.x_vel += .2
+        if direction == "up":
+            if self.grounded:
+                self.y_vel -= 1
 
     def movement(self):
         for i in walls:
@@ -50,6 +54,10 @@ class player(pg.sprite.Sprite):
         self.y_next = self.y + self.y_vel * dt
         self.terrain_collision()
         self.x += self.x_vel * dt
+        if self.y_vel != 0:
+            self.grounded = 0
+        else:
+            self.grounded = 1
         self.y += self.y_vel * dt
         # FRICTION
         if self.x_vel > 0:
@@ -67,7 +75,7 @@ class player(pg.sprite.Sprite):
         self.y_offset = (y_res / 2) + (self.height / 2) - self.y
 
     def terrain_collision(self):
-    # X COLLISION
+        # X COLLISION
         for wall in walls:
 
             # Moving into the right side of block
@@ -79,14 +87,14 @@ class player(pg.sprite.Sprite):
                 self.x_vel = 0
                 self.x = walls[wall].x - self.length
 
-    # Y COLLISION
-
+        # Y COLLISION
         for wall in walls:
             print(walls[wall].y, 'walls[wall].y')
             print(self.y_next)
             if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
                 self.y_vel = 0
                 self.y = walls[wall].y
+                self.grounded = 1
 player1 = player()
 
 
@@ -138,11 +146,13 @@ while 1:
                     pg.display.set_mode(res, pg.FULLSCREEN)
                     fullscreen_check = 1
                 initial_draw()
-
+            if event.key == pg.K_SPACE:
+                player1.move("up")
     if keys[pg.K_a] and keys[pg.K_d] != 1:
         player1.move("left")
     if keys[pg.K_d] and keys[pg.K_a] != 1:
         player1.move("right")
+
 
     player1.movement()
     update()
