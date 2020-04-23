@@ -11,7 +11,8 @@ fullscreen_check = 0
 background = pg.image.load(os.path.join("images", "wallpaper.jpg")).convert()
 background = pg.transform.scale(background, (x_res, y_res))
 player_sprite = pg.image.load(os.path.join("images", "man.png")).convert_alpha()
-
+rainbow = pg.image.load(os.path.join("images", "rainbow-fade.jpg")).convert()
+rainbow = pg.transform.scale(rainbow, (x_res,y_res))
 
 clock = pg.time.Clock()
 blue = (0, 0, 255)
@@ -21,36 +22,49 @@ grey = (125, 125, 125)
 green = (37, 115, 58)
 red = (255, 0, 0)
 
-class player:
+
+class player(pg.sprite.Sprite):
     def __init__(self):
+        pg.sprite.Sprite.__init__(self)
         self.x = 0
         self.y = 0
+        self.x_next = 0
+        self.y_next = 0
         self.x_vel = 0
         self.y_vel = 0
         self.length = 25
         self.height = 50
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) + self.y
-
+        self.rect = pg.rect(self.x, self.y, self.length, self.height)
     def move(self, direction):
-
-        if 10 > self.x_vel > -10:
+        print(self.rect)
+        if 1 > self.x_vel > -1:
             if direction == "left":
-                self.x_vel -= 2
+                self.x_vel -= .2
             if direction == "right":
-                self.x_vel += 2
+                self.x_vel += .2
 
     def movement(self):
-        self.x += self.x_vel
-        #FRICTION
-        if self.x_vel > 0:
-            self.x_vel = self.x_vel - .5
-        if self.x_vel < 0:
-            self.x_vel = self.x_vel + .5
+        for i in walls:
+            screen.blit(rainbow, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
+                        (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+        self.x_next = self.x + self.x_vel * dt
+        self.terrain_collision()
+        self.x += self.x_vel * dt
 
-        print(abs(self.x_vel))
+        # FRICTION
+        if self.x_vel > 0:
+            self.x_vel = self.x_vel - .05
+        if self.x_vel < 0:
+            self.x_vel = self.x_vel + .05
+        if .05 > self.x_vel > -.05:
+            self.x_vel = 0
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) - self.y
+
+    def terrain_collision(self):
+        pass
 
 player1 = player()
 
@@ -65,10 +79,10 @@ class block:
 
 
 def update():
-    screen.blit(background, (0, 0))
     screen.blit(player_sprite, (center_x - player1.length / 2, center_y - player1.height / 2))
     for i in walls:
         pg.draw.rect(screen, walls[i].colour, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+
     pg.display.update()
 
 
@@ -79,15 +93,17 @@ def initial_draw():
 
 initial_draw()
 
-walls = {'ground': block(0, 0, 100, 20, grey)
+walls = {
+        'ground': block(0, 0, 100, 20, grey),
+        'wall': block(-25, -50, 25, 25, grey)
          }
 
 
 while 1:
-    dt = clock.tick(60)
+    dt = clock.tick(0)
 
     keys = pg.key.get_pressed()
-    #print(player1.x_vel)
+    #print(clock.get_fps())
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
