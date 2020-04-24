@@ -36,48 +36,58 @@ class player(pg.sprite.Sprite):
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) + self.y
         self.grounded = 0
+        self.ground_counter = 0
     def move(self, direction):
-        if 1 > self.x_vel > -1:
-            if direction == "left":
-                self.x_vel -= .2
-            if direction == "right":
-                self.x_vel += .2
+        x_accel = .4
+        # if 1 > self.x_vel > -1:
+        #     if direction == "left":
+        #         self.x_vel -= .015
+        #     if direction == "right":
+        #         self.x_vel += .015
+        if direction == "left":
+            self.x_vel = -x_accel
+        if direction == "right":
+            self.x_vel = x_accel
         if direction == "up":
-            # if self.grounded:
-            self.y_vel -= 1
-
+            if self.grounded:
+                self.y_vel -= 1.8
+                self.grounded = 0
     def movement(self):
+
         for i in walls:
             screen.blit(rainbow, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
                         (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
         self.x_next = self.x + self.x_vel * dt
         self.y_next = self.y + self.y_vel * dt
+
         self.terrain_collision()
         self.x += self.x_vel * dt
-        if self.y_vel != 0:
-            self.grounded = 0
-        else:
-            self.grounded = 1
         self.y += self.y_vel * dt
+
+        friction = .01
         # FRICTION
         if self.x_vel > 0:
-            self.x_vel = self.x_vel - .05
+            self.x_vel = self.x_vel - friction * dt
         if self.x_vel < 0:
-            self.x_vel = self.x_vel + .05
-        if .05 > self.x_vel > -.05:
+            self.x_vel = self.x_vel + friction * dt
+        if friction * dt > self.x_vel > -friction * dt:
             self.x_vel = 0
 
         # Gravity
-        if self.y_vel < .1:
-            self.y_vel += .1
-
+        gravity = .015
+        if self.y_vel < gravity * 30:
+            self.y_vel += gravity * dt
+            self.ground_counter += 1
+            if self.ground_counter > 2:
+                self.ground_counter = 0
+                self.grounded = 0
         self.x_offset = (x_res / 2) - (self.length / 2) - self.x
         self.y_offset = (y_res / 2) + (self.height / 2) - self.y
 
     def terrain_collision(self):
         # X COLLISION
-        for wall in walls:
 
+        for wall in walls:
             # Moving into the right side of block
             if walls[wall].x + walls[wall].l > self.x_next > walls[wall].x and walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
                 self.x_vel = 0
@@ -87,18 +97,20 @@ class player(pg.sprite.Sprite):
                 self.x_vel = 0
                 self.x = walls[wall].x - self.length
 
-        # Y COLLISION
-        for wall in walls:
-            # print(walls[wall].y, 'walls[wall].y')
-            # print(self.y_next)
-            if self.y_vel > 0 and walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
-                self.y_vel = 0
-                self.y = walls[wall].y
-                self.grounded = 1
+            if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+                if self.y_vel > 0:
+                    # Standing on block
+                    self.y_vel = 0
+                    self.y = walls[wall].y
+                    self.grounded = 1
+                    self.ground_counter = 0
+                    #print("hi")
+                else:
+                    # Hitting your head on block
+                    self.y_vel = 0
+                    self.y = walls[wall].y + walls[wall].h + self.height
 
-            if self.y_vel < 0 and walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
-                self.y_vel = 0
-                self.y = walls[wall].y + walls[wall].h + self.height
+
 player1 = player()
 
 
@@ -133,10 +145,10 @@ walls = {
          }
 
 while 1:
-    dt = clock.tick(60)
+    dt = clock.tick(0)
 
     keys = pg.key.get_pressed()
-    #print(clock.get_fps())
+    print(clock.get_fps())
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
