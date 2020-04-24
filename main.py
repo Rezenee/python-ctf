@@ -43,8 +43,8 @@ class player(pg.sprite.Sprite):
             if direction == "right":
                 self.x_vel += .2
         if direction == "up":
-            if self.grounded:
-                self.y_vel -= 1
+            # if self.grounded:
+            self.y_vel -= 1
 
     def movement(self):
         for i in walls:
@@ -89,12 +89,16 @@ class player(pg.sprite.Sprite):
 
         # Y COLLISION
         for wall in walls:
-            print(walls[wall].y, 'walls[wall].y')
-            print(self.y_next)
-            if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+            # print(walls[wall].y, 'walls[wall].y')
+            # print(self.y_next)
+            if self.y_vel > 0 and walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
                 self.y_vel = 0
                 self.y = walls[wall].y
                 self.grounded = 1
+
+            if self.y_vel < 0 and walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+                self.y_vel = 0
+                self.y = walls[wall].y + walls[wall].h + self.height
 player1 = player()
 
 
@@ -123,11 +127,10 @@ def initial_draw():
 initial_draw()
 
 walls = {
-        'ground': block(0, 0, 100, 20, grey),
-        # 'wall': block(-25, -1, 25, 25, grey),
+        'ground': block(-5000, 0, 10000, 20, grey),
+        'wall': block(-25, -100, 25, 25, grey),
         'wall2': block(50, -45,25, 25, grey)
          }
-
 
 while 1:
     dt = clock.tick(60)
