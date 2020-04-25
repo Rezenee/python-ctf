@@ -38,7 +38,7 @@ class player(pg.sprite.Sprite):
         self.grounded = 0
         self.ground_counter = 0
     def move(self, direction):
-        x_accel = 1
+        x_accel = .3
 
         if direction == "left":
             self.x_vel = -x_accel
@@ -84,6 +84,8 @@ class player(pg.sprite.Sprite):
         # X COLLISION
         #print(self.x_vel)
         for wall in walls:
+            # X COLLISION
+            #
             # Checks for Y
             if walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
                 # Moving in the right direction
@@ -94,19 +96,39 @@ class player(pg.sprite.Sprite):
                 if self.x_vel < 0 and self.x >= walls[wall].x + walls[wall].l and self.x_next < walls[wall].x + walls[wall].l:
                     self.x_vel = 0
                     self.x = walls[wall].x + walls[wall].l
-            # Y Collision
-            if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+
+            # Y COLLISION
+            #
+            # Checks for X
+           # print(self.y)
+            if walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
+            #     if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height:
+            #         if self.y_vel > 0:
+            #             # Standing on block
+            #             self.y_vel = 0
+            #             self.y = walls[wall].y
+            #             self.grounded = 1
+            #             self.ground_counter = 0
+            #             #print("hi")
+            #         else:
+            #             # Hitting your head on block
+            #             self.y_vel = 0
+            #             self.y = walls[wall].y + walls[wall].h + self.height
                 if self.y_vel > 0:
-                    # Standing on block
-                    self.y_vel = 0
-                    self.y = walls[wall].y
-                    self.grounded = 1
-                    self.ground_counter = 0
-                    #print("hi")
-                else:
-                    # Hitting your head on block
-                    self.y_vel = 0
-                    self.y = walls[wall].y + walls[wall].h + self.height
+                    #print("procced")
+                    if self.y <= walls[wall].y:
+                        #print("Procced")
+                        if self.y_next > walls[wall].y:
+                            self.y_vel = 0
+                            self.y = walls[wall].y
+                            self.grounded = 1
+                            self.ground_counter = 0
+                if self.y_vel < 0:
+                    if self.y - self.height > walls[wall].y + walls[wall].h:
+                        if self.y_next - self.height < walls[wall].y + walls[wall].h:
+                            print("procced")
+                            self.y_vel = 0
+                            self.y = walls[wall].y + walls[wall].h + self.height
 
 
 player1 = player()
