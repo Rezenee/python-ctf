@@ -38,12 +38,8 @@ class player(pg.sprite.Sprite):
         self.grounded = 0
         self.ground_counter = 0
     def move(self, direction):
-        x_accel = .4
-        # if 1 > self.x_vel > -1:
-        #     if direction == "left":
-        #         self.x_vel -= .015
-        #     if direction == "right":
-        #         self.x_vel += .015
+        x_accel = 2
+
         if direction == "left":
             self.x_vel = -x_accel
         if direction == "right":
@@ -55,7 +51,7 @@ class player(pg.sprite.Sprite):
     def movement(self):
 
         for i in walls:
-            screen.blit(rainbow, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
+            screen.blit(background, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
                         (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
         self.x_next = self.x + self.x_vel * dt
         self.y_next = self.y + self.y_vel * dt
@@ -97,6 +93,7 @@ class player(pg.sprite.Sprite):
                 self.x_vel = 0
                 self.x = walls[wall].x - self.length
 
+            # Y Collision
             if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
                 if self.y_vel > 0:
                     # Standing on block
@@ -124,6 +121,7 @@ class block:
 
 
 def update():
+
     screen.blit(player1.image, (center_x - player1.length / 2, center_y - player1.height / 2))
     for i in walls:
         pg.draw.rect(screen, walls[i].colour, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
@@ -141,7 +139,7 @@ initial_draw()
 walls = {
         'ground': block(-5000, 0, 10000, 20, grey),
         'wall': block(-25, -100, 25, 25, grey),
-        'wall2': block(50, -45,25, 25, grey)
+        'wall2': block(50, -45, 5, 25, grey)
          }
 
 while 1:
