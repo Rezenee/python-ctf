@@ -38,7 +38,7 @@ class player(pg.sprite.Sprite):
         self.grounded = 0
         self.ground_counter = 0
     def move(self, direction):
-        x_accel = 2
+        x_accel = 1
 
         if direction == "left":
             self.x_vel = -x_accel
@@ -82,17 +82,18 @@ class player(pg.sprite.Sprite):
 
     def terrain_collision(self):
         # X COLLISION
-
+        #print(self.x_vel)
         for wall in walls:
-            # Moving into the right side of block
-            if walls[wall].x + walls[wall].l > self.x_next > walls[wall].x and walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
-                self.x_vel = 0
-                self.x = walls[wall].x + walls[wall].l
-            # Moving into left side of block
-            if walls[wall].x < self.x_next + self.length < walls[wall].x + walls[wall].l and walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
-                self.x_vel = 0
-                self.x = walls[wall].x - self.length
-
+            # Checks for Y
+            if walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
+                # Moving in the right direction
+                if self.x_vel > 0 and self.x < walls[wall].x and self.x_next + self.length > walls[wall].x:
+                    self.x_vel = 0
+                    self.x = walls[wall].x - self.length
+                # Moving in the Left Direction
+                if self.x_vel < 0 and self.x >= walls[wall].x + walls[wall].l and self.x_next < walls[wall].x + walls[wall].l:
+                    self.x_vel = 0
+                    self.x = walls[wall].x + walls[wall].l
             # Y Collision
             if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height and walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
                 if self.y_vel > 0:
@@ -146,7 +147,7 @@ while 1:
     dt = clock.tick(0)
 
     keys = pg.key.get_pressed()
-    print(clock.get_fps())
+    #print(clock.get_fps())
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
