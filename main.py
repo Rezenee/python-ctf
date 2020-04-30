@@ -138,13 +138,18 @@ def initial_draw():
 
 
 initial_draw()
+#     x, y, length, height, colour
 
 walls = {
         'ground': block(-5000, 0, 10000, 20, grey),
         'wall': block(-25, -100, 25, 25, grey),
         'wall2': block(50, -45, 5, 25, grey)
          }
+chunk_size = 640
+walls = {str(walls[k].x // chunk_size) +':' +  str(walls[k].y // chunk_size) + ':'+ k:v for k,v in walls.items()}
 
+#walls = {'00' + k:v for k,v in walls.items()}
+print(walls)
 while 1:
     dt = clock.tick(0)
 
@@ -164,9 +169,11 @@ while 1:
                 initial_draw()
             if event.key == pg.K_SPACE:
                 player1.move("up")
+            if event.key == pg.K_ESCAPE:
+                aoeuaoeu
     if keys[pg.K_a] and keys[pg.K_d] != 1:
         player1.move("left")
-    if keys[pg.K_d] and keys[pg.K_a] != 1:
+    if keys[pg.K_e] and keys[pg.K_a] != 1:
         player1.move("right")
 
 
