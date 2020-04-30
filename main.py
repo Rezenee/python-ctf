@@ -96,43 +96,23 @@ class player(pg.sprite.Sprite):
                 if self.x_vel < 0 and self.x >= walls[wall].x + walls[wall].l and self.x_next < walls[wall].x + walls[wall].l:
                     self.x_vel = 0
                     self.x = walls[wall].x + walls[wall].l
-
             # Y COLLISION
             #
             # Checks for X
-           # print(self.y)
             if walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
-            #     if walls[wall].y < self.y_next < walls[wall].y + walls[wall].h + self.height:
-            #         if self.y_vel > 0:
-            #             # Standing on block
-            #             self.y_vel = 0
-            #             self.y = walls[wall].y
-            #             self.grounded = 1
-            #             self.ground_counter = 0
-            #             #print("hi")
-            #         else:
-            #             # Hitting your head on block
-            #             self.y_vel = 0
-            #             self.y = walls[wall].y + walls[wall].h + self.height
-                if self.y_vel > 0:
-                    #print("procced")
-                    if self.y <= walls[wall].y:
-                        #print("Procced")
-                        if self.y_next > walls[wall].y:
-                            self.y_vel = 0
-                            self.y = walls[wall].y
-                            self.grounded = 1
-                            self.ground_counter = 0
-                if self.y_vel < 0:
-                    if self.y - self.height > walls[wall].y + walls[wall].h:
-                        if self.y_next - self.height < walls[wall].y + walls[wall].h:
-                            print("procced")
-                            self.y_vel = 0
-                            self.y = walls[wall].y + walls[wall].h + self.height
+                # Falling Down Stops if hits block
+                if self.y_vel > 0 and self.y <= walls[wall].y and self.y_next > walls[wall].y:
+                    self.y_vel = 0
+                    self.y = walls[wall].y
+                    self.grounded = 1
+                    self.ground_counter = 0
+                # Jumping stops if hits block
+                if self.y_vel < 0 and self.y - self.height > walls[wall].y + walls[wall].h and self.y_next - self.height < walls[wall].y + walls[wall].h:
+                    self.y_vel = 0
+                    self.y = walls[wall].y + walls[wall].h + self.height
 
 
 player1 = player()
-
 
 class block:
     def __init__(self, x, y, length, height, colour):
