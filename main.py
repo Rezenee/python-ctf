@@ -21,7 +21,7 @@ grey = (125, 125, 125)
 green = (37, 115, 58)
 red = (255, 0, 0)
 
-
+chunk_size = 640
 class player(pg.sprite.Sprite):
     def __init__(self):
         self.image = pg.image.load(os.path.join("images", "man.png")).convert_alpha()
@@ -37,6 +37,7 @@ class player(pg.sprite.Sprite):
         self.y_offset = (y_res / 2) + (self.height / 2) + self.y
         self.grounded = 0
         self.ground_counter = 0
+        self.coordinate = (self.x // chunk_size, self.y // chunk_size)
     def move(self, direction):
         x_accel = .3
 
@@ -53,10 +54,18 @@ class player(pg.sprite.Sprite):
         for i in walls:
             screen.blit(background, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
                         (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+        # Calculates the next position of X and Y coords
         self.x_next = self.x + self.x_vel * dt
         self.y_next = self.y + self.y_vel * dt
-
+        
+        # Runs collision detection-- Checks if you would run through blocks before applying change in coords
         self.terrain_collision()
+        old_cord = self.coordinate       
+        self.x_cord, self.y_cord = self.coordinate = (self.x // chunk_size, self.y // chunk_size)
+        
+        #walls = {'0:1:block1', '-1:1:block2'}
+#        if old_cord != self.coordinate:
+#            blocks_loaded = {k:v for k,v in walls.items() if k[0] < self.x_cord }
         self.x += self.x_vel * dt
         self.y += self.y_vel * dt
 
@@ -121,7 +130,8 @@ class block:
         self.l = length
         self.h = height
         self.colour = colour
-
+        self.x_cord = self.x // chunk_size
+        self.y_cord = self.y // chunk_size
 
 def update():
 
@@ -144,17 +154,14 @@ walls = {
         'ground': block(-5000, 0, 10000, 20, grey),
         'wall': block(-25, -100, 25, 25, grey),
         'wall2': block(50, -45, 5, 25, grey)
-         }
-chunk_size = 640
-walls = {str(walls[k].x // chunk_size) +':' +  str(walls[k].y // chunk_size) + ':'+ k:v for k,v in walls.items()}
+        }
 
-#walls = {'00' + k:v for k,v in walls.items()}
 print(walls)
 while 1:
     dt = clock.tick(0)
 
     keys = pg.key.get_pressed()
-    #print(clock.get_fps())
+   # print(clock.get_fps())
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -175,7 +182,6 @@ while 1:
         player1.move("left")
     if keys[pg.K_e] and keys[pg.K_a] != 1:
         player1.move("right")
-
 
     player1.movement()
     update()
