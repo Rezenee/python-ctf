@@ -12,7 +12,6 @@ background = pg.image.load(os.path.join("images", "wallpaper.jpg")).convert()
 background = pg.transform.scale(background, (x_res, y_res))
 rainbow = pg.image.load(os.path.join("images", "rainbow-fade.jpg")).convert()
 rainbow = pg.transform.scale(rainbow, (x_res,y_res))
-
 clock = pg.time.Clock()
 blue = (0, 0, 255)
 black = (0, 0, 0)
@@ -50,22 +49,20 @@ class player(pg.sprite.Sprite):
                 self.y_vel -= 1.8
                 self.grounded = 0
     def movement(self):
-
+        global blit_dict
         for i in walls:
             screen.blit(background, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
                         (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
         # Calculates the next position of X and Y coords
         self.x_next = self.x + self.x_vel * dt
         self.y_next = self.y + self.y_vel * dt
-        
+
         # Runs collision detection-- Checks if you would run through blocks before applying change in coords
         self.terrain_collision()
         old_cord = self.coordinate       
         self.x_cord, self.y_cord = self.coordinate = (self.x // chunk_size, self.y // chunk_size)
-        
-        #walls = {'0:1:block1', '-1:1:block2'}
-#        if old_cord != self.coordinate:
-#            blocks_loaded = {k:v for k,v in walls.items() if k[0] < self.x_cord }
+
+        blit_dict = {k: v for k, v in walls.items() if self.x_cord + 1 >= walls[k].x_cord >= self.x_cord - 1 and self.y_cord + 1 >= walls[k].y_cord >= self.y_cord - 1} 
         self.x += self.x_vel * dt
         self.y += self.y_vel * dt
 
@@ -155,8 +152,23 @@ walls = {
         'wall': block(-25, -100, 25, 25, grey),
         'wall2': block(50, -45, 5, 25, grey)
         }
+for wall in walls:
+    x_checkChunk = walls[wall].x
+    if x_checkChunk > 0:
+        # Sees how close it is to the edge of chunk, then sees if with the length it goes into 2 chunks.
+        while x_checkChunk > chunk_size:
+           x_checkChunk -= chunk_size 
+        if x_checkChunk + walls[wall].l> 640:
+            
+            del walls[wall]
+    else:
+        while x_checkChunk < -chunk_size:
+            x_checkChunk += chunk_size
+            print(x_checkChunk)
+        if x_checkChunk - walls[wall].l< -chunk_size:
+            print("oh god")
+#print(walls)
 
-print(walls)
 while 1:
     dt = clock.tick(0)
 
@@ -184,4 +196,5 @@ while 1:
         player1.move("right")
 
     player1.movement()
+    print(blit_dict) 
     update()
