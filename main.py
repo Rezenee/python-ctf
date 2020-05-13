@@ -36,7 +36,8 @@ class player(pg.sprite.Sprite):
         self.y_offset = (y_res / 2) + (self.height / 2) + self.y
         self.grounded = 0
         self.ground_counter = 0
-        self.coordinate = (self.x // chunk_size, self.y // chunk_size)
+        self.x_chunk, self.y_chunk = self.coordinate = (self.x // chunk_size, self.y // chunk_size)
+
     def move(self, direction):
         x_accel = .3
 
@@ -131,7 +132,7 @@ class block:
         self.y_cord = self.y // chunk_size
 
 def update():
-
+    print(player1.x_chunk)
     screen.blit(player1.image, (center_x - player1.length / 2, center_y - player1.height / 2))
     for i in walls:
         pg.draw.rect(screen, walls[i].colour, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
@@ -189,6 +190,16 @@ for wall in list(walls):
             x += chunk_size
         del walls[wall]
 
+for wall in list(walls):
+    chunk = x // chunk_size
+    if x < 0:
+        chunk -= 1
+    try:
+        if walls[str(chunk)]:
+            walls[str(chunk)][wall] = walls[wall]
+    except KeyError:
+        walls[str(chunk)] = {str(wall) : walls[wall]}
+    del walls[wall]
 while 1:
     dt = clock.tick(0)
 
