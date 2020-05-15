@@ -20,7 +20,7 @@ grey = (125, 125, 125)
 green = (37, 115, 58)
 red = (255, 0, 0)
 
-chunk_size = 640
+chunk_size = 200
 class player(pg.sprite.Sprite):
     def __init__(self):
         self.image = pg.image.load(os.path.join("images", "man.png")).convert_alpha()
@@ -50,20 +50,22 @@ class player(pg.sprite.Sprite):
                 self.y_vel -= 1.8
                 self.grounded = 0
     def movement(self):
-        global blit_dict
-        for i in walls:
-            screen.blit(background, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset),
-                        (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+        # for i in walls:
+        #   (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+        for chunk in walls:
+            if self.x_chunk + 1 >= int(chunk) >= self.x_chunk -1:
+                for i in walls[chunk]:
+                    screen.blit(background, (walls[chunk][i].x + self.x_offset, walls[chunk][i].y + self.y_offset),
+                                (walls[chunk][i].x + self.x_offset, walls[chunk][i].y + self.y_offset, walls[chunk][i].l, walls[chunk][i].h))
+
         # Calculates the next position of X and Y coords
         self.x_next = self.x + self.x_vel * dt
         self.y_next = self.y + self.y_vel * dt
 
         # Runs collision detection-- Checks if you would run through blocks before applying change in coords
         self.terrain_collision()
-        old_cord = self.coordinate       
-        self.x_cord, self.y_cord = self.coordinate = (self.x // chunk_size, self.y // chunk_size)
+        self.x_chunk, self.y_chunk = self.coordinate = (self.x // chunk_size, self.y // chunk_size)
 
-        blit_dict = {k: v for k, v in walls.items() if self.x_cord + 1 >= walls[k].x_cord >= self.x_cord - 1 and self.y_cord + 1 >= walls[k].y_cord >= self.y_cord - 1} 
         self.x += self.x_vel * dt
         self.y += self.y_vel * dt
 
@@ -76,7 +78,7 @@ class player(pg.sprite.Sprite):
         if friction * dt > self.x_vel > -friction * dt:
             self.x_vel = 0
 
-        # Gravity
+        # Gravity default = .015
         gravity = .015
         if self.y_vel < gravity * 30:
             self.y_vel += gravity * dt
@@ -88,35 +90,35 @@ class player(pg.sprite.Sprite):
         self.y_offset = (y_res / 2) + (self.height / 2) - self.y
 
     def terrain_collision(self):
-        # X COLLISION
-        #print(self.x_vel)
-        for wall in walls:
-            # X COLLISION
-            #
-            # Checks for Y
-            if walls[wall].y + walls[wall].h + self.height > self.y > walls[wall].y:
-                # Moving in the right direction
-                if self.x_vel > 0 and self.x < walls[wall].x and self.x_next + self.length > walls[wall].x:
-                    self.x_vel = 0
-                    self.x = walls[wall].x - self.length
-                # Moving in the Left Direction
-                if self.x_vel < 0 and self.x >= walls[wall].x + walls[wall].l and self.x_next < walls[wall].x + walls[wall].l:
-                    self.x_vel = 0
-                    self.x = walls[wall].x + walls[wall].l
-            # Y COLLISION
-            #
-            # Checks for X
-            if walls[wall].x - self.length < self.x < walls[wall].x + walls[wall].l:
-                # Falling Down Stops if hits block
-                if self.y_vel > 0 and self.y <= walls[wall].y and self.y_next > walls[wall].y:
-                    self.y_vel = 0
-                    self.y = walls[wall].y
-                    self.grounded = 1
-                    self.ground_counter = 0
-                # Jumping stops if hits block
-                if self.y_vel < 0 and self.y - self.height > walls[wall].y + walls[wall].h and self.y_next - self.height < walls[wall].y + walls[wall].h:
-                    self.y_vel = 0
-                    self.y = walls[wall].y + walls[wall].h + self.height
+        for chunk in walls:
+            if self.x_chunk + 1 >= int(chunk) >= self.x_chunk - 1:
+                for i in walls[chunk]:
+                    # X COLLISION
+                    #
+                    # Checks for Y
+                    if walls[chunk][i].y + walls[chunk][i].h + self.height > self.y > walls[chunk][i].y:
+                        # Moving in the right direction
+                        if self.x_vel > 0 and self.x < walls[chunk][i].x and self.x_next + self.length > walls[chunk][i].x:
+                            self.x_vel = 0
+                            self.x = walls[chunk][i].x - self.length
+                        # Moving in the Left Direction
+                        if self.x_vel < 0 and self.x >= walls[chunk][i].x + walls[chunk][i].l and self.x_next < walls[chunk][i].x + walls[chunk][i].l:
+                            self.x_vel = 0
+                            self.x = walls[chunk][i].x + walls[chunk][i].l
+                    # Y COLLISION
+                    #
+                    # Checks for X
+                    if walls[chunk][i].x - self.length < self.x < walls[chunk][i].x + walls[chunk][i].l:
+                        # Falling Down Stops if hits block
+                        if self.y_vel > 0 and self.y <= walls[chunk][i].y and self.y_next > walls[chunk][i].y:
+                            self.y_vel = 0
+                            self.y = walls[chunk][i].y
+                            self.grounded = 1
+                            self.ground_counter = 0
+                        # Jumping stops if hits block
+                        if self.y_vel < 0 and self.y - self.height > walls[chunk][i].y + walls[chunk][i].h and self.y_next - self.height < walls[chunk][i].y + walls[chunk][i].h:
+                            self.y_vel = 0
+                            self.y = walls[chunk][i].y + walls[chunk][i].h + self.height
 
 
 player1 = player()
@@ -132,10 +134,11 @@ class block:
         self.y_cord = self.y // chunk_size
 
 def update():
-    print(player1.x_chunk)
     screen.blit(player1.image, (center_x - player1.length / 2, center_y - player1.height / 2))
-    for i in walls:
-        pg.draw.rect(screen, walls[i].colour, (walls[i].x + player1.x_offset, walls[i].y + player1.y_offset, walls[i].l, walls[i].h))
+    for chunk in walls:
+        if player1.x_chunk + 1 >= int(chunk) >= player1.x_chunk - 1:
+            for i in walls[chunk]:
+                pg.draw.rect(screen, walls[chunk][i].colour,(walls[chunk][i].x + player1.x_offset, walls[chunk][i].y + player1.y_offset, walls[chunk][i].l, walls[chunk][i].h))
 
     pg.display.update()
 
@@ -191,20 +194,26 @@ for wall in list(walls):
         del walls[wall]
 
 for wall in list(walls):
+    x = walls[wall].x
     chunk = x // chunk_size
-    if x < 0:
-        chunk -= 1
+    # Check to see if the chunk is already created
     try:
         if walls[str(chunk)]:
-            walls[str(chunk)][wall] = walls[wall]
+            walls[str(chunk)][str(wall)] = walls[wall]
+    # If it has not been created
     except KeyError:
-        walls[str(chunk)] = {str(wall) : walls[wall]}
+        walls[str(chunk)] = {}
+        walls[str(chunk)][str(wall)] = walls[wall]
     del walls[wall]
+
+
+
+### RUN LOOP
 while 1:
     dt = clock.tick(0)
 
     keys = pg.key.get_pressed()
-   # print(clock.get_fps())
+    print(clock.get_fps())
     for event in pg.event.get():
         if event.type == pg.QUIT:
             pg.quit()
@@ -227,5 +236,4 @@ while 1:
         player1.move("right")
 
     player1.movement()
-    print(blit_dict)
     update()
