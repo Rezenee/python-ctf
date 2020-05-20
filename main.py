@@ -20,7 +20,8 @@ grey = (125, 125, 125)
 green = (37, 115, 58)
 red = (255, 0, 0)
 
-chunk_size = 200
+chunk_size = 640
+blockPlaced = 0
 class player(pg.sprite.Sprite):
     def __init__(self):
         self.image = pg.image.load(os.path.join("images", "man.png")).convert_alpha()
@@ -121,6 +122,40 @@ class player(pg.sprite.Sprite):
                             self.y = walls[chunk][i].y + walls[chunk][i].h + self.height
 
 
+    def place_block(self):
+        if event.type == pg.MOUSEBUTTONDOWN:
+            global blockPlaced
+            mouse_x, mouse_y = mouse_pos = pg.mouse.get_pos()
+            #screen.blit(player1.image, (center_x - player1.length / 2, center_y - player1.height / 2))
+            # This makes the mouse be in the center of block when clicked, not the top right
+            mouse_x -= 12
+            mouse_y -= 12
+            # if mouse_x - 12 >
+
+            # This accounts for moving; 0,0 is center of screen not the top right
+            mouse_x -= self.x_offset
+            mouse_y -= self.y_offset
+
+
+
+            mouse_x = int(mouse_x)
+            mouse_y = int(mouse_y)
+            chunk = mouse_x // chunk_size
+            # Check to see if the chunk is already created
+            varname = "playerBlock"
+            varname += str(blockPlaced)
+            blockPlaced += 1
+            try:
+                #     x, y, l, h, colour
+
+                if walls[str(chunk)]:
+                    walls[str(chunk)][varname] = block(mouse_x, mouse_y, 25, 25, blue)
+            # If it has not been created
+            except KeyError:
+                walls[str(chunk)] = {}
+                walls[str(chunk)][varname] = block(mouse_x, mouse_y, 25, 25, blue)
+
+
 player1 = player()
 
 class block:
@@ -141,7 +176,6 @@ def update():
                 pg.draw.rect(screen, walls[chunk][i].colour,(walls[chunk][i].x + player1.x_offset, walls[chunk][i].y + player1.y_offset, walls[chunk][i].l, walls[chunk][i].h))
 
     pg.display.update()
-
 
 def initial_draw():
     screen.blit(background, (0, 0))
@@ -207,14 +241,13 @@ for wall in list(walls):
     del walls[wall]
 
 
-
 ### RUN LOOP
 while 1:
     dt = clock.tick(0)
-
     keys = pg.key.get_pressed()
-    print(clock.get_fps())
+    #print(clock.get_fps())
     for event in pg.event.get():
+        player1.place_block()
         if event.type == pg.QUIT:
             pg.quit()
         if event.type == pg.KEYDOWN:
@@ -230,6 +263,7 @@ while 1:
                 player1.move("up")
             if event.key == pg.K_ESCAPE:
                 aoeuaoeu
+
     if keys[pg.K_a] and keys[pg.K_d] != 1:
         player1.move("left")
     if keys[pg.K_d] and keys[pg.K_a] != 1:

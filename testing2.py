@@ -1,3 +1,6 @@
-import pyautogui, time; time.sleep(2)
-# while 1: pyautogui.click(); time.sleep(.625)
-while 1: pyautogui.mouseDown(button="right")
+import pyautogui as py
+import time
+time.sleep(2)
+while 1:
+    py.keyDown("space")
+    py.keyUp("space")      
